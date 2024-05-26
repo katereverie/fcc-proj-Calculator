@@ -1,42 +1,71 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+#calculator-container {
+    background-color: var(--primary-color);
+    border: 1px solid white;
+    box-shadow: 0 0 4px 1px white;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#display {
+    font-size: 1.2rem;
+    min-height: 60px;
+    margin: 8px 8px;
+    padding: 8px;
+    color: var(--accent-character-color);
+    text-align: end;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+#buttons-container {
+    background-color: var(--primary-color);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-.card {
-  padding: 2em;
+#buttons-container .button-wrapper {
+    display: flex;
+    justify-content: space-around;
+    margin: 0 8px;
+}
+#buttons-container .button-wrapper #zero {
+    width: 160px;
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 28px;
+}
+#buttons-container .button-wrapper:first-child {
+    margin-top: 20px;
+}
+#buttons-container .button-wrapper:last-child {
+    margin-bottom: 20px;
 }
 
-.read-the-docs {
-  color: #888;
+/* operators */
+.operator {
+    background-color: var(--accent-operator-color) !important;
+}
+
+/* function */
+.function {
+    background-color: var(--accent-function-color) !important;
+    color: var(--primary-color);
+}
+
+/* footer */
+footer p {
+    color: var(--accent-character-color);
+}
+#author {
+    font-family: Silkscreen;
+    color: red;
 }
