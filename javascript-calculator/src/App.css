@@ -14,13 +14,17 @@
     flex-direction: column;
 }
 
-#display {
-    font-size: 1.2rem;
-    min-height: 60px;
-    margin: 8px 8px;
+#expression, #display {
+    font-size: 0.8rem;
+    min-height: 28px;
+    margin: 0 8px;
     padding: 8px;
     color: var(--accent-character-color);
-    text-align: end;
+    text-align: end;  
+}
+
+#display {
+    font-size: 1.2rem;
 }
 
 #buttons-container {
