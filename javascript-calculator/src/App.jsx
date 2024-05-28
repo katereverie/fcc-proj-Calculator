@@ -9,6 +9,10 @@ function App() {
     const [display, setDisplay] = useState('0');
     const [expression, setExpression] = useState('');
 
+    const operators = ['÷', '×', '-', '+'];
+    const numberRegex = /(\d+(\.\d+)?)/g;
+    const operatorRegex = /(\d+(\.\d+)?|[+-÷×])/g;
+
     const operate = (a, b, operator) => {
         switch (operator) {
             case '+':
@@ -23,157 +27,104 @@ function App() {
                 }
                 return a / b;
             default:
-                throw new Error("WTF");
+                throw new Error("something is off");
         }
     }
     
     const handleClickedInput = (e) => {
 
-        const operators = ['÷', '×', '-', '+'];
-        const operatorRegex = /(\d+(\.\d+)?|[+−÷×])/g;
         const value = e.target.value;
+
+        // since the programmers do not know if the users input a digit or a decimal point,
+        // it is necessary for the programmers to check it.
+        const isValueOperator = operators.includes(value) ? true : false;
+        const isValueDecimal = value === '.' ? true: false;
+        const isValueZero = value === '0'? true: false;
         
-        const isInputOperator = operators.includes(value) ? true : false;
-        const isInputDecimal = value === '.' ? true: false;
-        const isInputZero = value === '0'? true: false;
 
-        if (!isInputOperator) {
-            
-            setDisplay(prevDisplay => {
+        // if operators are clicked, preserve result for expression; replace result with input value
+        // if a number input (including decimal) is clicked, clear result for both display and expression
 
-                const hasDecimal = prevDisplay.includes('.') ? true: false;
-                const isPrevDisplayOperator = operators.includes(prevDisplay)? true: false;
-
-                // is result null or not
-                if (result !== null) {
-                    return value;
-                }
-                
-                // handle 0
-                if (prevDisplay === '0' && isInputZero) {
-                    return value;
-                } else if (prevDisplay === '0' && !isInputZero && !isInputDecimal) {
-                    return value;
-                } else if (operators.includes(prevDisplay) && !isPrevDisplayOperator) {     
-                    return value;
-                } 
-
-                // handle decimal
-                if (isInputDecimal) {
+        if (!isValueOperator) {
+            // input value is not an operator (but a digit [0-9] or a decimal point ".")
+            isValueDecimal? 
+            (
+                setDisplay(prevDisplay => {
+                    const hasDecimal = prevDisplay.includes('.') ? true: false;
+                    const isPrevDisplayOperator = operators.includes(prevDisplay)? true: false;
+                    
                     if (isPrevDisplayOperator) {
-                        return '0.';
+                        return `0.`;
+                    } else if (hasDecimal) {
+                        return prevDisplay;
                     } else {
-                        if (hasDecimal) {
-                            return prevDisplay;
-                        } else {
-                            return prevDisplay.concat(value);
-                        }
+                        return prevDisplay.concat('.');
                     }
+                }),
+                setExpression(prevExpression => {
 
-                } else {
-                    if (isPrevDisplayOperator) {
-                        return value;
-                    }
-                }
+                    if (prevExpression === '' || prevExpression === "0") return '0.';
 
-                return prevDisplay.concat(value);
+                    const numberToken = prevExpression.match(numberRegex);
+                    const lastNumber = numberToken[numberToken.length - 1];
+                    const hasDecimalNumber = numberToken.some(num => num.includes('.'));
+                    const isLastNumberDecimalNumber = lastNumber.includes('.');
 
-            });
+                    // console.log("number token:", numberToken);
+                    // console.log("last number", lastNumber);
+                    // console.log("hasDecimalNumber", hasDecimalNumber);
+                    // console.log("is last number decimal number", isLastNumberDecimalNumber);
 
-            setExpression(prevExpression => {
-                
-                const lastChar = prevExpression[prevExpression.length - 1];
-                const isLastCharOperator = operators.includes(lastChar)? true: false;
-
-                if (result !== null) {
-                    return value;
-                }
-
-                // handle empty string and 0
-                // if current expression is an empty string or zero
-                if (prevExpression === '' || prevExpression === '0') {
-                    // if current input value is a decimal point, return "0.". 
-                    // If not, just replace it with the current input value 
-                    if (isInputDecimal) {
-                        return ('0.');
-                    } else {
-                        return value;
-                    }
-                }
-
-                // else: current expression is neither empty nor zero
-                // check first if the input value is a decimal point
-                if (!isInputDecimal) {
-                    // if the input value is not a decimal point - that is
-                    // the input value is a regular integr, then just concatenate it to the current expression
+                    if (prevExpression[prevExpression.length - 1] === '.') return prevExpression;
+                    if (hasDecimalNumber && isLastNumberDecimalNumber) return prevExpression;
+                    
                     return prevExpression.concat(value);
-                } else {
-                    // the input value is a decimal point, check if the last number entered already has a decimal point
-                    const matchedArr = prevExpression.match(operatorRegex);
-                    const lastNumber = matchedArr[matchedArr.length - 1];
-                    if (lastNumber.includes('.')) {
-                        return prevExpression;
-                    }
-                    // if the current expression's last character is already a decimal point, return current expression
-                    if (isLastCharOperator) {
-                        return prevExpression.concat('0.');
-                    } else {
-
-                        if (lastChar === '.') {
-                            return prevExpression;
-                        } else {
-                            // if the last character is not a decimal point, check the last series of characters only contain one decimal point
-                            prevExpression.concat('value');
-                            // console.log("The last number:", prevExpression.match(operatorRegex));
-                        }
-
-                    }
-
-                }
-
+                })
+            )
+            :
+            (
+                setDisplay(prevDisplay => {
                 
-                return prevExpression.concat(value);
-            })
+                    const isPrevDisplayOperator = operators.includes(prevDisplay)? true: false;
+
+                    if (isPrevDisplayOperator || (prevDisplay == '0' && !isValueZero)) {
+                        return value;
+                    } else if (prevDisplay == '0' && isValueZero) {
+                        return '0';
+                    } else {
+                        return prevDisplay.concat(value);
+                    }
+                }),
+                setExpression(prevExpression => {
+                    if (prevExpression === '' || prevExpression === '0') return value;
+                    return prevExpression.concat(value);
+                })
+            );
 
         } else {
-            setDisplay(prevDisplay => {
-                const lastChar = prevDisplay[prevDisplay.length - 1];
-
-                if (!operators.includes(lastChar)) {
-                    return value;
-                } 
-
-                return value;
-            })
-
+            // input value is an operator
+            setDisplay(value);
             setExpression(prevExpression => {
-                
+
                 const lastChar = prevExpression[prevExpression.length - 1];
+                const isLastCharOperator = operators.includes(lastChar)? true : false;
+            
 
-                // if there is no operator at the end of the current expression, concat the clicked operator
-                // if there is already an operator at the end of the current expression, and if the clicked operator is the same as the existing operator, don't change anything
-                if (!operators.includes(lastChar) && lastChar !== '.') {
-                    return prevExpression.concat(value);
-                } else if (lastChar === value) {
-                    return prevExpression;
-                } else if (lastChar === '.') {
-                    return prevExpression.concat(`0${value}`);
-                }
-
-            })
+                if (prevExpression === '') return value;
+                if (isLastCharOperator && lastChar === value ) return prevExpression;
+                if (isLastCharOperator && lastChar !== value) return prevExpression.slice(0, -1).concat(value);
+                return prevExpression.concat(value);
+            });
         }
 
     }
     
     // when users click 'equals', calculate and display results
     const handleCalculation = () => {
-
-        const operators = ['÷', '×', '-', '+'];
         
         setExpression(prevExpression => {
-            console.log(`current expression is ${prevExpression}`);
-            // dissect current expression into several expressions
-            const operatorRegex = /(\d+(\.\d+)?|[+-÷×])/g;
+    
+            
             const expressionArr = prevExpression.match(operatorRegex);
             console.log("expression array after tokenization: ", expressionArr);
             const hasOperatorAtEnd = operators.includes(expressionArr[expressionArr.length - 1]) ? true: false;
@@ -197,7 +148,7 @@ function App() {
                 }
             }
 
-            return prevExpression.concat(`= ${result}`);
+            return prevExpression.concat(`=${result}`);
         });
         
         setDisplay(prevDisplay => {
@@ -205,7 +156,7 @@ function App() {
                 prevDisplay = result;
             }
             return prevDisplay;
-        });
+        });    
     }
 
     const clear = () => {
