@@ -16,7 +16,7 @@
 
 #expression, #display {
     font-size: 0.8rem;
-    min-height: 28px;
+    height: 28px;
     margin: 0 8px;
     padding: 8px;
     color: var(--accent-character-color);
