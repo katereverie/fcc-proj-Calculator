@@ -9,18 +9,21 @@
     background-color: var(--primary-color);
     border: 1px solid white;
     box-shadow: 0 0 4px 1px white;
-    min-width: 320px;
+    max-width: 368px;
     display: flex;
     flex-direction: column;
 }
 
 #expression, #display {
+    
     font-size: 0.8rem;
     height: 28px;
-    margin: 0 8px;
-    padding: 8px;
+    margin: 8px 16px;
+    padding: 12px 0;
     color: var(--accent-character-color);
-    text-align: end;  
+    text-align: end;
+    overflow-y: hidden;
+    overflow-x: auto;
 }
 
 #display {
@@ -72,4 +75,11 @@ footer p {
 #author {
     font-family: Silkscreen;
     color: red;
+}
+
+#easter-btn img {
+    
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }

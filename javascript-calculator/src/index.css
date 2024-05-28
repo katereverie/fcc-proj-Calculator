@@ -41,7 +41,7 @@ button {
     font-weight: 600;
     font-family: inherit;
     background-color: var(--secondary-color) !important;
-    color: white;
+    color: var(--accent-character-color);
     cursor: pointer;
     transition: border-color 0.25s;
     transition: ease-in-out 0.35s;
