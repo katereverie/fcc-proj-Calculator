@@ -187,6 +187,30 @@ function App() {
         setResult('');
     }
 
+    const percentize = () => {
+        if (display === '0') {
+            setDisplay('0');
+        } else {
+
+            if (expression === '0') {
+                setDisplay(prevDisplay => {
+                    return String(Number(prevDisplay) / 100);
+                })
+                setExpression(prevExpression => {
+                    return String(Number(prevExpression) / 100);
+                });
+            } else {
+                setDisplay(prevDisplay => {
+                    return String(Number(prevDisplay) / 100);
+                })
+                setExpression(prevExpression => {
+                    return String(Number(prevExpression) / 100);
+                })
+            }
+
+        }
+    }
+
     return (
         <>
         <header>
@@ -206,8 +230,8 @@ function App() {
                 <div id='buttons-container'>
                     <div className='button-wrapper'>
                         <button id='clear' className='function' onClick={clear}>AC</button>
-                        <button id='minus-or-plus' className='function'>&#177;</button>
-                        <button id='percent' className='function'>&#37;</button>
+                        <button id='easter-btn' className='function'><a href='https://github.com/Katereverie' target='__blank'><img src='/avatar-square.png' alt='avatar'/></a></button>
+                        <button id='percent' className='function' onClick={percentize}>&#37;</button>
                         <button id='divide' className='operator' value='÷' onClick={handleClickedInput}>÷</button>
                     </div>
                     <div className='button-wrapper'>
