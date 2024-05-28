@@ -11,6 +11,8 @@ function App() {
     const numberRegex = /(\d+(\.\d+)?)/g;
     const operatorRegex = /(\d+(\.\d+)?|[+−÷×])/g;
 
+    const isResultDisplayed = expression.includes('=');
+
     const operate = (a, b, operator) => {
 
         console.log(`operator is: ${operator}`);
@@ -41,7 +43,6 @@ function App() {
         const isValueOperator = operators.includes(value);
         const isValueDecimal = value === '.' ? true: false;
         const isValueZero = value === '0'? true: false;
-        const isResultDisplayed = expression.includes('=');
         const isValueMinus = value === '−';
 
         // if operators are clicked, preserve result for expression; replace result with input value
@@ -107,20 +108,26 @@ function App() {
             const areLastTwoCharsOperators = operators.includes(lastChar) && operators.includes(secondLastChar);
 
             if (isResultDisplayed) {
-                setExpression(result + value);
-            }
-            
+                setExpression(prevExpression => {
+                    prevExpression = String(result);
+                    return prevExpression.concat(value);
+                });
+            } else {
             // no result displayed
-            setDisplay(value);
-            setExpression(prevExpression => {
-
-                if (prevExpression === '') return value;
-                if (isLastCharOperator && isValueMinus && !areLastTwoCharsOperators) return prevExpression.concat(value);
-                if (isLastCharOperator && lastChar === value) return prevExpression;
-                if (isLastCharOperator && lastChar !== value) return prevExpression.slice(0, -1).concat(value);
                 
-                return prevExpression.concat(value);
-            });
+                setExpression(prevExpression => {
+
+                    if (prevExpression === '') return value;
+                    if (isLastCharOperator && isValueMinus && !areLastTwoCharsOperators) return prevExpression.concat(value);
+                    if (isLastCharOperator && lastChar === value) return prevExpression;
+                    if (isLastCharOperator && lastChar !== value) return prevExpression.slice(0, -1).concat(value);
+                    
+                    return prevExpression.concat(value);
+                });
+            }
+
+            setDisplay(value);
+
         }
 
     }
@@ -128,42 +135,49 @@ function App() {
     // when users click 'equals', calculate and display results
     const handleCalculation = () => {
 
-        const tokens = expression.match(operatorRegex);
-        const hasOperatorAtEnd = operators.includes(tokens[tokens.length - 1]);
-
-        // if the last element of tokens is an operator, remove it
-        console.log("matched tokens: ", tokens);
-        if (hasOperatorAtEnd) console.log("tokens without =: ", tokens.pop);
-        
-
-        // convert number strings to numbers 
-        const convertedTokens = tokens.map(token => isNaN(token) ? token: Number(token)
-        );
-
-        console.log(`maped tokens: ${convertedTokens}`);
-
-        let currentResult = convertedTokens[0];
-        console.log(`the currentResult is: ${currentResult}` );
-        let currentOperator = null;
-        
-        for (let i = 1; i < convertedTokens.length; i++) {
-            const currentToken = convertedTokens[i];
-            const nextToken = convertedTokens[i + 1];
-
-            if (typeof currentToken === 'string' & nextToken !== '−') {
-                currentOperator = currentToken;
-            } else if (typeof currentToken === 'string' && nextToken === '−') {
-                currentOperator = currentToken;
-                convertedTokens[i + 2] = -convertedTokens[i + 2];
-                convertedTokens.splice(i + 1, 1);
-            } else {
-                currentResult = operate(currentResult, currentToken, currentOperator);
+        if (isResultDisplayed) {
+            setDisplay(prevDisplay => prevDisplay);
+            setExpression(prevExpression => prevExpression);
+        } else {
+            const tokens = expression.match(operatorRegex);
+            console.log("tokens now before handling: ", tokens)
+            const hasOperatorAtEnd = operators.includes(tokens[tokens.length - 1]);
+    
+            // if the last element of tokens is an operator, remove it
+            console.log("matched tokens: ", tokens);
+            if (hasOperatorAtEnd) console.log("tokens without =: ", tokens.pop);
+            
+    
+            // convert number strings to numbers 
+            const convertedTokens = tokens.map(token => isNaN(token) ? token: Number(token)
+            );
+    
+            console.log(`maped tokens: ${convertedTokens}`);
+    
+            let currentResult = convertedTokens[0];
+            console.log(`the currentResult is: ${currentResult}` );
+            let currentOperator = null;
+            
+            for (let i = 1; i < convertedTokens.length; i++) {
+                const currentToken = convertedTokens[i];
+                const nextToken = convertedTokens[i + 1];
+    
+                if (typeof currentToken === 'string' & nextToken !== '−') {
+                    currentOperator = currentToken;
+                } else if (typeof currentToken === 'string' && nextToken === '−') {
+                    currentOperator = currentToken;
+                    convertedTokens[i + 2] = -convertedTokens[i + 2];
+                    convertedTokens.splice(i + 1, 1);
+                } else {
+                    currentResult = operate(currentResult, currentToken, currentOperator);
+                }
             }
+    
+            setResult(currentResult);
+            setExpression(prevExpression => prevExpression.concat(`=${currentResult}`));
+            setDisplay(String(currentResult));
         }
 
-        setResult(currentResult);
-        setExpression(prevExpression => prevExpression.concat(`=${currentResult}`));
-        setDisplay(String(currentResult));
 
     }
 
