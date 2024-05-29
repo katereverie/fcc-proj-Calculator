@@ -44,10 +44,12 @@ function App() {
         const isValueDecimal = value === '.' ? true: false;
         const isValueZero = value === '0'? true: false;
         const isValueMinus = value === '−';
+        // const isResultDisplayed = expression.includes('=');
 
         // if operators are clicked, preserve result for expression; replace result with input value
         // if a number input (including decimal) is clicked, clear result for both display and expression
         if (!isValueOperator) {
+
             isValueDecimal?
             // input is a decimal point 
             (
@@ -94,6 +96,7 @@ function App() {
                     }
                 }),
                 setExpression(prevExpression => {
+
                     if (prevExpression === '' || prevExpression === '0' || isResultDisplayed) return value;
                     return prevExpression.concat(value);
                 })
@@ -134,6 +137,8 @@ function App() {
     
     // when users click 'equals', calculate and display results
     const handleCalculation = () => {
+
+        // const isResultDisplayed = expression.includes('=');
 
         if (isResultDisplayed) {
             setDisplay(prevDisplay => prevDisplay);
@@ -188,26 +193,35 @@ function App() {
     }
 
     const percentize = () => {
-        if (display === '0') {
+
+        if (display === '0' & expression === '') {
             setDisplay('0');
+            setExpression('0');
         } else {
+            const isDisplayOperator = operators.includes(display);
+            const isLastCharOfExpressionOperator = operators.includes(expression[expression.length - 1]);
+
+            isDisplayOperator? setDisplay(display): setDisplay(String(Number(display) / 100));
 
             if (expression === '0') {
-                setDisplay(prevDisplay => {
-                    return String(Number(prevDisplay) / 100);
-                })
-                setExpression(prevExpression => {
-                    return String(Number(prevExpression) / 100);
-                });
-            } else {
-                setDisplay(prevDisplay => {
-                    return String(Number(prevDisplay) / 100);
-                })
-                setExpression(prevExpression => {
-                    return String(Number(prevExpression) / 100);
-                })
-            }
+                    setExpression(prevExpression => {
+                        return String(Number(prevExpression) / 100);
+                    });
+                } else {
 
+                    // const isResultDisplayed = expression.includes('=');
+
+                    isResultDisplayed?
+                    setExpression(prevExpression => {
+                        prevExpression = result;
+                        return String(Number(prevExpression) / 100);
+                    })
+                    :
+                    setExpression(prevExpression => {
+                        console.log("here! is the last character")
+                        return isLastCharOfExpressionOperator? prevExpression: String(Number(prevExpression) / 100);
+                    })
+                }
         }
     }
 
@@ -231,7 +245,7 @@ function App() {
                     <div className='button-wrapper'>
                         <button id='clear' className='function' onClick={clear}>AC</button>
                         <button id='easter-btn' className='function'><a href='https://github.com/Katereverie' target='__blank'><img src='/avatar-square.png' alt='avatar'/></a></button>
-                        <button id='percent' className='function' onClick={percentize}>&#37;</button>
+                        <button id='percent' className='function' value='&#37;' onClick={percentize}>&#37;</button>
                         <button id='divide' className='operator' value='÷' onClick={handleClickedInput}>÷</button>
                     </div>
                     <div className='button-wrapper'>
