@@ -15,8 +15,6 @@ function App() {
 
     const operate = (a, b, operator) => {
 
-        console.log(`operator is: ${operator}`);
-        console.log(`the values are ${a} and ${b}`);
         switch (operator) {
             case '+':
                 return a + b;
@@ -38,24 +36,18 @@ function App() {
 
         const value = e.target.value;
 
-        // since the programmers do not know if the users input a digit or a decimal point,
-        // it is necessary for the programmers to check it.
         const isValueOperator = operators.includes(value);
         const isValueDecimal = value === '.';
         const isValueZero = value === '0';
         const isValueMinus = value === '−';
-        // const isResultDisplayed = expression.includes('=');
 
-        // if operators are clicked, preserve result for expression; replace result with input value
-        // if a number input (including decimal) is clicked, clear result for both display and expression
         if (!isValueOperator) {
 
             isValueDecimal?
-            // input is a decimal point 
             (
                 setDisplay(prevDisplay => {
-                    const hasDecimal = prevDisplay.includes('.') ? true: false;
-                    const isPrevDisplayOperator = operators.includes(prevDisplay)? true: false;
+                    const hasDecimal = prevDisplay.includes('.');
+                    const isPrevDisplayOperator = operators.includes(prevDisplay);
                     
                     if (isPrevDisplayOperator) {
                         return `0.`;
@@ -81,7 +73,6 @@ function App() {
                 })
             )
             :
-            // input is between [0-9]
             (
                 setDisplay(prevDisplay => {
 
@@ -103,7 +94,6 @@ function App() {
             );
 
         } else {
-            // input value is an operator
 
             const lastChar = expression[expression.length - 1];
             const secondLastChar= expression[expression.length - 2];
@@ -116,7 +106,6 @@ function App() {
                     return prevExpression.concat(value);
                 });
             } else {
-            // no result displayed
                 
                 setExpression(prevExpression => {
 
@@ -124,7 +113,6 @@ function App() {
                     if (!isLastCharOperator) {
                         return prevExpression.concat(value);
                     } else if (areLastTwoCharsOperators) {
-                        console.log("reached here");
                         if (isValueMinus) {
                             return prevExpression;
                         } else {
@@ -145,21 +133,15 @@ function App() {
 
     }
     
-    // when users click 'equals', calculate and display results
     const handleCalculation = () => {
-
-        // const isResultDisplayed = expression.includes('=');
 
         if (isResultDisplayed) {
             setDisplay(prevDisplay => prevDisplay);
             setExpression(prevExpression => prevExpression);
         } else {
             const tokens = expression.match(operatorRegex);
-            console.log("tokens now before handling: ", tokens)
             const hasOperatorAtEnd = operators.includes(tokens[tokens.length - 1]);
-    
-            // if the last element of tokens is an operator, remove it
-            if (hasOperatorAtEnd) console.log("tokens without =: ", tokens.pop);
+            if (hasOperatorAtEnd) tokens.pop;
             
     
             // convert number strings to numbers
@@ -177,49 +159,28 @@ function App() {
                 }
             }
 
-            console.log(`after handling consecutive operators: `, convertedTokens);
-
             // handle multiplication and division first:
-            let primaryResult = [];
+            let preliminaryResult = [];
             let currentOperator = null;
 
             for (let i = 0; i < convertedTokens.length; i++) {
                 const currentToken = convertedTokens[i];
-                console.log(`current token being examined is ${currentToken}`)
                 if (typeof currentToken === 'string' && (currentToken === '×' || currentToken === '÷')) {
                     currentOperator = convertedTokens[i];
-                    console.log(`we found an operator with primary precedence: ${currentOperator}. We make it the most current operator for later calculation.`)
                 } else if (currentOperator) {
-                    console.log(`our current operator is not null, it is ${currentOperator}`);
-                    const prevValue = primaryResult.pop();
-                    console.log(`here is the prevValue: ${prevValue}`)
-                    console.log(`here are the expression to be sent for calculation: ${prevValue} ${currentOperator} ${currentToken}`)
+                    const prevValue = preliminaryResult.pop();
                     const newValue = operate(prevValue, currentToken, currentOperator);
-                    console.log(`here's the result: ${newValue}`)
-                    primaryResult.push(newValue);
-                    console.log(`we added the result to the expression for secondary calculation: ${primaryResult}`)
+                    preliminaryResult.push(newValue);
                     currentOperator = null;
-                    console.log(`we reassign null to our currentOperator for the next loop`);
-                } else {
-                    console.log(`the current token being examined is either not an operator or an operator which is neither x nor ÷, it could be a number or an operator + or -, it is : ${currentToken}, we add it to the primary result`)
-                    primaryResult.push(currentToken);
-                    console.log(`here's the primary result after pushing the current token to it: ${primaryResult}`);
+                } else {                
+                    preliminaryResult.push(currentToken);
                 }
             }
 
-            console.log(`the first round of calculation is finished`);
-            console.log("ready for secondary processing:", primaryResult);
-            console.log("what about the converted tokens?", convertedTokens)
-    
+            let finalResult = preliminaryResult[0];
 
-            let finalResult = primaryResult[0];
-            
-            // let currentResult = convertedTokens[0];
-            // let currentOperator = null;
-            
-
-            for (let i = 1; i < primaryResult.length; i++) {
-                const currentToken = primaryResult[i];
+            for (let i = 1; i < preliminaryResult.length; i++) {
+                const currentToken = preliminaryResult[i];
     
                 if (typeof currentToken === 'string') {
                     currentOperator = currentToken;
@@ -259,8 +220,6 @@ function App() {
                     });
                 } else {
 
-                    // const isResultDisplayed = expression.includes('=');
-
                     isResultDisplayed?
                     setExpression(prevExpression => {
                         prevExpression = result;
@@ -268,7 +227,6 @@ function App() {
                     })
                     :
                     setExpression(prevExpression => {
-                        console.log("here! is the last character")
                         return isLastCharOfExpressionOperator? prevExpression: String(Number(prevExpression) / 100);
                     })
                 }
