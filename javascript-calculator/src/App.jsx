@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import './App.css';
+import Display from './Display';
+import Buttons from './Buttons';
 
 function App() {
-    
     const [display, setDisplay] = useState('0');
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
-    
+
     const operators = ['÷', '×', '−', '+'];
     const numberRegex = /(\d+(\.\d+)?)/g;
     const operatorRegex = /(\d+(\.\d+)?|[+−÷×])/g;
@@ -14,7 +15,6 @@ function App() {
     const isResultDisplayed = expression.includes('=');
 
     const operate = (a, b, operator) => {
-
         switch (operator) {
             case '+':
                 return a + b;
@@ -30,10 +30,9 @@ function App() {
             default:
                 throw new Error("something is off");
         }
-    }    
-    
-    const handleClickedInput = (e) => {
+    };
 
+    const handleClickedInput = (e) => {
         const value = e.target.value;
 
         const isValueOperator = operators.includes(value);
@@ -42,61 +41,58 @@ function App() {
         const isValueMinus = value === '−';
 
         if (!isValueOperator) {
+            isValueDecimal ?
+                (
+                    setDisplay(prevDisplay => {
+                        const hasDecimal = prevDisplay.includes('.');
+                        const isPrevDisplayOperator = operators.includes(prevDisplay);
 
-            isValueDecimal?
-            (
-                setDisplay(prevDisplay => {
-                    const hasDecimal = prevDisplay.includes('.');
-                    const isPrevDisplayOperator = operators.includes(prevDisplay);
-                    
-                    if (isPrevDisplayOperator) {
-                        return `0.`;
-                    } else if (hasDecimal) {
-                        return prevDisplay;
-                    } else {
-                        return prevDisplay.concat('.');
-                    }
-                }),
-                setExpression(prevExpression => {
+                        if (isPrevDisplayOperator) {
+                            return `0.`;
+                        } else if (hasDecimal) {
+                            return prevDisplay;
+                        } else {
+                            return prevDisplay.concat('.');
+                        }
+                    }),
+                    setExpression(prevExpression => {
 
-                    if (prevExpression === '' || prevExpression === "0") return '0.';
+                        if (prevExpression === '' || prevExpression === "0") return '0.';
 
-                    const numberToken = prevExpression.match(numberRegex);
-                    const lastNumber = numberToken[numberToken.length - 1];
-                    const hasDecimalNumber = numberToken.some(num => num.includes('.'));
-                    const isLastNumberDecimalNumber = lastNumber.includes('.');
+                        const numberToken = prevExpression.match(numberRegex);
+                        const lastNumber = numberToken[numberToken.length - 1];
+                        const hasDecimalNumber = numberToken.some(num => num.includes('.'));
+                        const isLastNumberDecimalNumber = lastNumber.includes('.');
 
-                    if (prevExpression[prevExpression.length - 1] === '.') return prevExpression;
-                    if (hasDecimalNumber && isLastNumberDecimalNumber) return prevExpression;
-                    
-                    return prevExpression.concat(value);
-                })
-            )
-            :
-            (
-                setDisplay(prevDisplay => {
+                        if (prevExpression[prevExpression.length - 1] === '.') return prevExpression;
+                        if (hasDecimalNumber && isLastNumberDecimalNumber) return prevExpression;
 
-                    const isPrevDisplayOperator = operators.includes(prevDisplay);
+                        return prevExpression.concat(value);
+                    })
+                )
+                :
+                (
+                    setDisplay(prevDisplay => {
+                        const isPrevDisplayOperator = operators.includes(prevDisplay);
 
-                    if (isPrevDisplayOperator || (prevDisplay == '0' && !isValueZero) || isResultDisplayed) {
-                        return value;
-                    } else if (prevDisplay == '0' && isValueZero) {
-                        return '0';
-                    } else {
-                        return prevDisplay.concat(value);
-                    }
-                }),
-                setExpression(prevExpression => {
+                        if (isPrevDisplayOperator || (prevDisplay === '0' && !isValueZero) || isResultDisplayed) {
+                            return value;
+                        } else if (prevDisplay === '0' && isValueZero) {
+                            return '0';
+                        } else {
+                            return prevDisplay.concat(value);
+                        }
+                    }),
+                    setExpression(prevExpression => {
 
-                    if (prevExpression === '' || prevExpression === '0' || isResultDisplayed) return value;
-                    return prevExpression.concat(value);
-                })
-            );
+                        if (prevExpression === '' || prevExpression === '0' || isResultDisplayed) return value;
+                        return prevExpression.concat(value);
+                    })
+                );
 
         } else {
-
             const lastChar = expression[expression.length - 1];
-            const secondLastChar= expression[expression.length - 2];
+            const secondLastChar = expression[expression.length - 2];
             const isLastCharOperator = operators.includes(lastChar);
             const areLastTwoCharsOperators = operators.includes(lastChar) && operators.includes(secondLastChar);
 
@@ -106,9 +102,7 @@ function App() {
                     return prevExpression.concat(value);
                 });
             } else {
-                
                 setExpression(prevExpression => {
-
                     if (prevExpression === '') return value;
                     if (!isLastCharOperator) {
                         return prevExpression.concat(value);
@@ -121,20 +115,16 @@ function App() {
                     } else {
                         if (isValueMinus) return prevExpression.concat(value);
                         if (!isValueMinus && lastChar === value) return prevExpression;
-                        if (!isValueMinus && lastChar !== value) return  prevExpression.slice(0, -1).concat(value); 
+                        if (!isValueMinus && lastChar !== value) return prevExpression.slice(0, -1).concat(value);
                     }
-
                 });
             }
 
             setDisplay(value);
-
         }
+    };
 
-    }
-    
     const handleCalculation = () => {
-
         if (isResultDisplayed) {
             setDisplay(prevDisplay => prevDisplay);
             setExpression(prevExpression => prevExpression);
@@ -142,10 +132,9 @@ function App() {
             const tokens = expression.match(operatorRegex);
             const hasOperatorAtEnd = operators.includes(tokens[tokens.length - 1]);
             if (hasOperatorAtEnd) tokens.pop;
-            
-    
+
             // convert number strings to numbers
-            const convertedTokens = tokens.map(token => isNaN(token) ? token: Number(token));
+            const convertedTokens = tokens.map(token => isNaN(token) ? token : Number(token));
             // handle consecutive operators excluding "-"
             for (let i = 0; i < convertedTokens.length; i++) {
                 const currentToken = convertedTokens[i];
@@ -172,7 +161,7 @@ function App() {
                     const newValue = operate(prevValue, currentToken, currentOperator);
                     preliminaryResult.push(newValue);
                     currentOperator = null;
-                } else {                
+                } else {
                     preliminaryResult.push(currentToken);
                 }
             }
@@ -181,30 +170,27 @@ function App() {
 
             for (let i = 1; i < preliminaryResult.length; i++) {
                 const currentToken = preliminaryResult[i];
-    
+
                 if (typeof currentToken === 'string') {
                     currentOperator = currentToken;
                 } else {
                     finalResult = operate(finalResult, currentToken, currentOperator);
                 }
             }
-    
+
             setResult(finalResult);
             setExpression(prevExpression => prevExpression.concat(`=${finalResult}`));
             setDisplay(String(finalResult));
         }
-
-
-    }
+    };
 
     const clear = () => {
         setDisplay('0');
         setExpression('');
         setResult('');
-    }
+    };
 
     const percentize = () => {
-
         if (display === '0' & expression === '') {
             setDisplay('0');
             setExpression('0');
@@ -212,83 +198,48 @@ function App() {
             const isDisplayOperator = operators.includes(display);
             const isLastCharOfExpressionOperator = operators.includes(expression[expression.length - 1]);
 
-            isDisplayOperator? setDisplay(display): setDisplay(String(Number(display) / 100));
+            isDisplayOperator ? setDisplay(display) : setDisplay(String(Number(display) / 100));
 
             if (expression === '0') {
-                    setExpression(prevExpression => {
-                        return String(Number(prevExpression) / 100);
-                    });
-                } else {
-
-                    isResultDisplayed?
+                setExpression(prevExpression => {
+                    return String(Number(prevExpression) / 100);
+                });
+            } else {
+                isResultDisplayed ?
                     setExpression(prevExpression => {
                         prevExpression = result;
                         return String(Number(prevExpression) / 100);
                     })
                     :
                     setExpression(prevExpression => {
-                        return isLastCharOfExpressionOperator? prevExpression: String(Number(prevExpression) / 100);
-                    })
-                }
+                        return isLastCharOfExpressionOperator ? prevExpression : String(Number(prevExpression) / 100);
+                    });
+            }
         }
-    }
+    };
 
     return (
         <>
-        <header>
-            <h1>Calculator</h1>
-        </header>
-        <main>
-            <div id='calculator-container'>
-                <div id='display-container'>
-                    <div id='expression'>
-                        {expression}
-                    </div>
-                    <div id='display'>
-                        {display}
-                    </div>
+            <header>
+                <h1>Calculator</h1>
+            </header>
+            <main>
+                <div id='calculator-container'>
+                    <Display display={display} expression={expression} />
+                    <Buttons 
+                        handleClickedInput={handleClickedInput} 
+                        handleCalculation={handleCalculation} 
+                        clear={clear} 
+                        percentize={percentize} 
+                    />
                 </div>
-
-                <div id='buttons-container'>
-                    <div className='button-wrapper'>
-                        <button id='clear' className='function' onClick={clear}>AC</button>
-                        <button id='easter-btn' className='function'><a href='https://github.com/Katereverie' target='__blank'><img src='/avatar-square.png' alt='avatar'/></a></button>
-                        <button id='percent' className='function' value='&#37;' onClick={percentize}>&#37;</button>
-                        <button id='divide' className='operator' value='÷' onClick={handleClickedInput}>÷</button>
-                    </div>
-                    <div className='button-wrapper'>
-                        <button id='seven' className='number-btn' value='7' onClick={handleClickedInput}>7</button>
-                        <button id='eight' className='number-btn' value='8' onClick={handleClickedInput}>8</button>
-                        <button id='nine' className='number-btn' value='9' onClick={handleClickedInput}>9</button>
-                        <button id='multiply' className='operator' value='×' onClick={handleClickedInput}>×</button>
-                    </div>
-                    <div className='button-wrapper'>
-                        <button id='four' className='number-btn' value='4' onClick={handleClickedInput}>4</button>
-                        <button id='five' className='number-btn' value='5' onClick={handleClickedInput}>5</button>
-                        <button id='six' className='number-btn' value='6' onClick={handleClickedInput}>6</button>
-                        <button id='subtract' className='operator' value='−' onClick={handleClickedInput}>−</button>
-                    </div>
-                    <div className='button-wrapper'>
-                        <button id='one' className='number-btn' value='1' onClick={handleClickedInput}>1</button>
-                        <button id='two' className='number-btn' value='2' onClick={handleClickedInput}>2</button>
-                        <button id='three' className='number-btn' value='3' onClick={handleClickedInput}>3</button>
-                        <button id='add' className='operator' value='+' onClick={handleClickedInput}>+</button>
-                    </div>
-                    <div className='button-wrapper'>
-                        <button id='zero' className='number-btn' value='0' onClick={handleClickedInput}>0</button>            
-                        <button id='decimal' className='number-btn' value='.' onClick={handleClickedInput}>.</button>
-                        <button id='equals' className='operator' onClick={handleCalculation}>&#61;</button>
-                    </div>
-
-                </div>
-            </div>
-            <footer>
-                <p>Inspired by Apple Design</p>
-                <p>&copy; {new Date().getFullYear()} <span id='author'>Katereverie</span></p>
-            </footer>
-        </main>
+                <footer>
+                    <p>Inspired by Apple Design</p>
+                    <p>&copy; {new Date().getFullYear()} <span id='author'>Katereverie</span></p>
+                </footer>
+            </main>
         </>
-    )
+    );
 }
 
-export default App
+export default App;
