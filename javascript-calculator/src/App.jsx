@@ -10,7 +10,7 @@ function App() {
 
     const operators = ['÷', '×', '−', '+'];
     const numberRegex = /(\d+(\.\d+)?)/g;
-    const operatorRegex = /(\d+(\.\d+)?|[+−÷×])/g;
+    const operatorRegex = /(-?\d+(\.\d+)?|[+−÷×])/g;
 
     const isResultDisplayed = expression.includes('=');
 
@@ -191,7 +191,7 @@ function App() {
     };
 
     const percentize = () => {
-        if (display === '0' & expression === '') {
+        if (display === '0' && (expression === '' || expression === '0')) {
             setDisplay('0');
             setExpression('0');
         } else {
@@ -200,21 +200,29 @@ function App() {
 
             isDisplayOperator ? setDisplay(display) : setDisplay(String(Number(display) / 100));
 
-            if (expression === '0') {
+            isResultDisplayed ?
                 setExpression(prevExpression => {
+                    prevExpression = result;
                     return String(Number(prevExpression) / 100);
+                })
+                :
+                setExpression(prevExpression => {
+                    const expressionTokens = prevExpression.match(operatorRegex);
+                    const hasNumberAtEnd = Number(expressionTokens[expressionTokens.length - 1]);
+                    const lastNumber = hasNumberAtEnd? hasNumberAtEnd: false;
+
+                    if (isLastCharOfExpressionOperator) {
+                        return prevExpression
+                    } else {
+                        if (!isNaN(lastNumber)) {
+                            expressionTokens.pop();
+                            expressionTokens.push(String(lastNumber / 100));
+                            return expressionTokens.join('');
+                        } else {
+                            return prevExpression;
+                        }
+                    }
                 });
-            } else {
-                isResultDisplayed ?
-                    setExpression(prevExpression => {
-                        prevExpression = result;
-                        return String(Number(prevExpression) / 100);
-                    })
-                    :
-                    setExpression(prevExpression => {
-                        return isLastCharOfExpressionOperator ? prevExpression : String(Number(prevExpression) / 100);
-                    });
-            }
         }
     };
 
