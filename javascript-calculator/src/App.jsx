@@ -219,9 +219,10 @@ function App() {
                         }
                     
                         // Check if expressionTokens is strictly 3 or not
-                        if (expressionTokens.length !== 3) {
-                            console.log("reached here")
-                            return prevExpression; 
+                        if (expressionTokens.length === 1) {
+                            const percentizedResult = String(Number(prevExpression)/100);
+                            setDisplay(percentizedResult);
+                            return percentizedResult;
                         }
                     
                         const firstNumber = Number(expressionTokens[0]);
@@ -230,6 +231,7 @@ function App() {
                         // Check if firstNumber and lastNumber are valid numbers
                         if (isNaN(firstNumber) || isNaN(lastNumber)) {
                             console.error("Invalid number conversion:", firstNumber, lastNumber);
+                            setDisplay(display);
                             return prevExpression;
                         }
                     
