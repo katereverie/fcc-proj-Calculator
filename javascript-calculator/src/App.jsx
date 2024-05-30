@@ -198,31 +198,56 @@ function App() {
             const isDisplayOperator = operators.includes(display);
             const isLastCharOfExpressionOperator = operators.includes(expression[expression.length - 1]);
 
-            isDisplayOperator ? setDisplay(display) : setDisplay(String(Number(display) / 100));
+            if (isDisplayOperator && isLastCharOfExpressionOperator) {
+                setDisplay(display);
+                setExpression(expression);
+            } else {
+                isResultDisplayed? 
+                (
+                    setExpression(String(Number(result/ 100))),
+                    setDisplay(String(Number(display / 100)))
+                ):
+                (
+                    setExpression(prevExpression => {
 
-            isResultDisplayed ?
-                setExpression(prevExpression => {
-                    prevExpression = result;
-                    return String(Number(prevExpression) / 100);
-                })
-                :
-                setExpression(prevExpression => {
-                    const expressionTokens = prevExpression.match(operatorRegex);
-                    const hasNumberAtEnd = Number(expressionTokens[expressionTokens.length - 1]);
-                    const lastNumber = hasNumberAtEnd? hasNumberAtEnd: false;
-
-                    if (isLastCharOfExpressionOperator) {
-                        return prevExpression
-                    } else {
-                        if (!isNaN(lastNumber)) {
-                            expressionTokens.pop();
-                            expressionTokens.push(String(lastNumber / 100));
-                            return expressionTokens.join('');
-                        } else {
+                        const expressionTokens = prevExpression.match(operatorRegex);
+                        
+                        if (expressionTokens[0] === '−') {
+                            // make the second token a negative number and remove the first token (-)
+                            expressionTokens[1] = -expressionTokens[1];
+                            expressionTokens.shift();
+                        }
+                    
+                        // Check if expressionTokens is strictly 3 or not
+                        if (expressionTokens.length !== 3) {
+                            console.log("reached here")
+                            return prevExpression; 
+                        }
+                    
+                        const firstNumber = Number(expressionTokens[0]);
+                        const lastNumber = Number(expressionTokens[2]);
+                    
+                        // Check if firstNumber and lastNumber are valid numbers
+                        if (isNaN(firstNumber) || isNaN(lastNumber)) {
+                            console.error("Invalid number conversion:", firstNumber, lastNumber);
                             return prevExpression;
                         }
-                    }
-                });
+                    
+                        const percentizedLastNumber = firstNumber * (lastNumber / 100);
+                    
+                        // Update display
+                        setDisplay(String(percentizedLastNumber));
+                    
+                        // Modify the expression tokens
+                        expressionTokens.pop();
+                        expressionTokens.push(String(percentizedLastNumber));
+                    
+                        // Join the tokens back into a string
+                        return expressionTokens.join('');
+                    })
+                    
+                )
+            }
         }
     };
 
